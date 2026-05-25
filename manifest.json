@@ -1,0 +1,30 @@
+{
+  "id": "family-meals",
+  "name": "Family Meals",
+  "version": "1.0.0",
+  "description": "Plan the week's meals day by day. Pick from your recipe book, assign who's cooking, and add ingredients directly to your grocery list.",
+  "entrypoint": "index.html",
+  "runtime": "static",
+  "storage": "db",
+  "category": "home",
+  "tags": ["meals", "food", "planning", "cooking"],
+  "data_access": {
+    "reads": ["family.members", "app.recipes.recipes"],
+    "writes": ["app.grocery.pending_items"]
+  },
+  "permissions": {
+    "default_audience": "everyone",
+    "requires_approval": false
+  },
+  "resource_limits": {
+    "max_db_bytes": 104857600
+  },
+  "nav": {
+    "label": "Meals"
+  },
+  "widget": {
+    "label": "Meals",
+    "size": "small"
+  },
+  "icon": "🍽️"
+}

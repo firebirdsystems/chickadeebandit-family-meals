@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Meals</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           var(--hub-bg, #f9fafb);
+      --card:         var(--hub-surface, #ffffff);
+      --border:       var(--hub-border, #e5e7eb);
+      --border-mid:   var(--hub-border, #d1d5db);
+      --text:         var(--hub-text, #111827);
+      --muted:        var(--hub-text-muted, #6b7280);
+      --accent:       var(--hub-primary, #111827);
+      --accent-hover: var(--hub-primary-hover, #374151);
+      --accent-fg:    var(--hub-primary-fg, #fff);
+      --radius:       var(--hub-radius, 0.5rem);
+      --shadow:       0 1px 3px rgba(0,0,0,.07);
+      --green:  #059669; --green-light: #d1fae5;
+      --amber:  #d97706; --amber-bg: #fffbeb; --amber-border: #fcd34d;
+      --red:    #dc2626; --red-light: #fee2e2; --red-bg: #fef2f2;
+      --blue:   #2563eb; --blue-light: #dbeafe;
+    }
+
+    body {
+      font-family: var(--hub-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+      background: var(--bg); color: var(--text);
+      font-size: var(--hub-font-size, 15px); line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .app { max-width: 680px; margin: 0 auto; padding: 16px; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 8px 18px; font-size: 0.9rem; font-weight: 600; color: var(--muted);
+      background: none; border: none; border-bottom: 2px solid transparent;
+      cursor: pointer; margin-bottom: -2px; font-family: inherit; transition: all .15s;
+    }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    /* ── Week navigation ── */
+    .week-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .week-nav-btn {
+      background: none; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 6px 12px; cursor: pointer; font-size: 0.875rem; color: var(--muted);
+      font-family: inherit; transition: all .15s;
+    }
+    .week-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .week-label { font-size: 0.875rem; font-weight: 600; color: var(--muted); }
+    .today-btn {
+      background: none; border: none; color: var(--accent); font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+      font-family: inherit; transition: background .15s;
+    }
+    .today-btn:hover { background: var(--border); }
+
+    /* ── Week grid ── */
+    .week-grid { display: flex; flex-direction: column; gap: 8px; }
+    .day-row {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; box-shadow: var(--shadow);
+    }
+    .day-header {
+      padding: 8px 12px; background: #f3f4f6; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .day-name { font-weight: 700; font-size: 0.9rem; }
+    .day-date { font-size: 0.78rem; color: var(--muted); }
+    .day-today .day-header { background: var(--blue-light); }
+    .day-today .day-name { color: var(--blue); }
+    .slot-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-bottom: 1px solid var(--border); cursor: pointer;
+      transition: background .1s; min-height: 42px;
+    }
+    .slot-row:last-child { border-bottom: none; }
+    .slot-row:hover { background: #fafafa; }
+    .slot-label {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); min-width: 64px; flex-shrink: 0;
+    }
+    .slot-meal { font-size: 0.9rem; flex: 1; }
+    .slot-empty { font-size: 0.875rem; color: #d1d5db; font-style: italic; }
+    .slot-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .avatar {
+      width: 22px; height: 22px; border-radius: 50%; background: var(--accent);
+      color: var(--accent-fg); font-size: 0.65rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .recipe-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+      flex-shrink: 0; title: "Linked to recipe";
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 9px 16px; border-radius: 8px; font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; border: none; transition: all .15s; font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: var(--accent-fg); }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: .45; cursor: default; }
+    .btn-ghost { background: none; color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--text); color: var(--text); }
+    .btn-danger { background: var(--red-bg); color: var(--red); border: 1.5px solid #fecaca; }
+    .btn-danger:hover { background: var(--red-light); }
+
+    /* ── Favorites tab ── */
+    .fav-list { display: flex; flex-direction: column; gap: 8px; }
+    .fav-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px 14px; box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .fav-name { font-weight: 600; font-size: 0.95rem; flex: 1; }
+    .fav-count { font-size: 0.75rem; color: var(--muted); }
+    .fav-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .fav-tag {
+      padding: 2px 8px; background: var(--blue-light); color: var(--blue);
+      border-radius: 999px; font-size: 0.72rem; font-weight: 600;
+    }
+    .fav-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .icon-btn {
+      background: none; border: none; color: var(--muted); font-size: 0.95rem;
+      cursor: pointer; padding: 5px 7px; border-radius: 6px; transition: all .15s;
+    }
+    .icon-btn:hover { background: var(--border); color: var(--text); }
+    .icon-btn.del:hover { background: var(--red-light); color: var(--red); }
+
+    /* ── Add favorite form ── */
+    .fav-form-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px;
+    }
+    .field { margin-bottom: 12px; }
+    label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+    input[type=text], textarea, select {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 8px 12px; font-size: 0.92rem; font-family: inherit; color: var(--text);
+      background: var(--card); outline: none; transition: border-color .15s;
+    }
+    input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accent); }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); color: var(--accent-fg);
+      border: none; font-size: 1.5rem; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2); transition: background .15s, transform .1s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fab:hover { background: var(--accent-hover); transform: scale(1.05); }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 0; z-index: 100;
+    }
+    @media (min-width: 480px) {
+      .modal-backdrop { align-items: center; padding: 16px; }
+    }
+    .modal {
+      background: var(--card); border-radius: 16px 16px 0 0; padding: 20px;
+      width: 100%; max-width: 480px; box-shadow: 0 -4px 32px rgba(0,0,0,.18);
+      max-height: 92vh; overflow-y: auto;
+    }
+    @media (min-width: 480px) {
+      .modal { border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+    }
+    .modal-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .modal-subtitle { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+    .modal-divider {
+      display: flex; align-items: center; gap: 8px; margin: 14px 0;
+      font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+    }
+    .modal-divider::before, .modal-divider::after {
+      content: ""; flex: 1; border-top: 1px solid var(--border);
+    }
+
+    /* ── Quick picks ── */
+    .quick-picks { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .pick-chip {
+      padding: 5px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+      border: 1.5px solid var(--border); background: var(--card); color: var(--text);
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .pick-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .pick-chip.selected { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+
+    /* ── Recipe search in modal ── */
+    .recipe-picker { margin-top: 6px; }
+    .recipe-search {
+      border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 7px 11px; font-size: 0.875rem; font-family: inherit; color: var(--text);
+      background: var(--card); outline: none; width: 100%; transition: border-color .15s;
+      margin-bottom: 8px;
+    }
+    .recipe-search:focus { border-color: var(--accent); }
+    .recipe-pick-list { display: flex; flex-direction: column; gap: 5px; max-height: 200px; overflow-y: auto; }
+    .recipe-pick-item {
+      padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--border);
+      cursor: pointer; font-size: 0.875rem; transition: all .15s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .recipe-pick-item:hover { border-color: var(--accent); }
+    .recipe-pick-item.selected { border-color: var(--accent); background: var(--blue-light); }
+    .recipe-pick-name { font-weight: 600; flex: 1; }
+    .recipe-pick-meta { font-size: 0.75rem; color: var(--muted); }
+
+    .diff-badge {
+      display: inline-block; padding: 1px 6px; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700; color: white;
+    }
+    .diff-easy   { background: var(--green); }
+    .diff-medium { background: var(--amber); }
+    .diff-hard   { background: var(--red); }
+
+    /* ── Grocery checkbox ── */
+    .grocery-check {
+      display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+      background: var(--amber-bg); border: 1.5px solid var(--amber-border);
+      border-radius: 8px; margin-top: 10px; cursor: pointer;
+    }
+    .grocery-check input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }
+    .grocery-check-label { font-size: 0.875rem; font-weight: 600; color: #92400e; cursor: pointer; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #1f2937; color: #f9fafb; padding: 10px 18px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,.3);
+      z-index: 200; pointer-events: none; opacity: 0; transition: opacity .2s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .toast.error { background: #7f1d1d; }
+
+    /* ── Empty / loading ── */
+    .empty { text-align: center; padding: 48px 16px; color: var(--muted); }
+    .empty-icon { font-size: 3rem; margin-bottom: 10px; }
+    .loading { text-align: center; padding: 48px; color: var(--muted); }
+
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+    }
+    .section-title { font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  </style>
+<base href="/run/family-meals/">
+</head>
+<body>
+<div class="app">
+  <div id="root"><div class="loading">Loading…</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { esc, hubConfirm, crossWrite } from "/hub-sdk.js";
+
+const DB      = window.__DB_URL         ?? "";
+const CONTEXT = window.__CONTEXT_URL    ?? "";
+const ME      = window.__CURRENT_MEMBER ?? null;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let activeTab = "week";    // "week" | "favorites"
+let weekOffset = 0;        // weeks from current week (0 = this week)
+let mealPlan = [];         // rows from meal_plan table
+let favorites = [];        // rows from favorites table
+let members = [];          // family members from context
+let availableRecipes = []; // loaded from app.recipes.recipes
+let showFavForm = false;
+let editingFavId = null;
+
+// ── DB ────────────────────────────────────────────────────────────────────────
+async function db(sql, params = []) {
+  if (!DB) return { rows: [] };
+  const res = await fetch(DB, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sql, params }),
+  });
+  const json = await res.json();
+  if (json.error) throw new Error(json.error);
+  return json;
+}
+
+// ── Context ───────────────────────────────────────────────────────────────────
+async function loadContext() {
+  if (!CONTEXT) return;
+  try {
+    const res = await fetch(`${CONTEXT}?keys=family.members,app.recipes.recipes`);
+    if (!res.ok) return;
+    const data = await res.json();
+    members = data["family.members"] ?? [];
+    availableRecipes = data["app.recipes.recipes"] ?? [];
+  } catch { /* non-fatal */ }
+}
+
+// ── Data loading ──────────────────────────────────────────────────────────────
+async function loadAll() {
+  const [mpRes, favRes] = await Promise.all([
+    db(`SELECT * FROM meal_plan ORDER BY plan_date, slot`),
+    db(`SELECT * FROM favorites ORDER BY use_count DESC, name`),
+  ]);
+  mealPlan = mpRes.rows;
+  favorites = favRes.rows;
+}
+
+// ── Week helpers ──────────────────────────────────────────────────────────────
+function getWeekDays(offset) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  // Find Monday of current week
+  const dayOfWeek = today.getDay(); // 0=Sun
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff + offset * 7);
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function dateKey(d) {
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function formatDay(d) {
+  return d.toLocaleDateString("en-US", { weekday: "short" });
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function isToday(d) {
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+}
+
+function weekRangeLabel(days) {
+  const s = days[0].toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const e = days[6].toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return `${s} – ${e}`;
+}
+
+const SLOTS = [
+  { key: "breakfast", label: "Breakfast" },
+  { key: "lunch",     label: "Lunch"     },
+  { key: "dinner",    label: "Dinner"    },
+];
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadContext(), loadAll()]);
+  render();
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type = "") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast show" + (type ? " " + type : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+// ── Member helpers ─────────────────────────────────────────────────────────────
+function memberInitials(id) {
+  const m = members.find(m => m.id === id);
+  if (!m) return "?";
+  return m.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function memberColor(id) {
+  const colors = ["#6366f1","#059669","#d97706","#dc2626","#2563eb","#7c3aed","#0891b2"];
+  const idx = Math.abs(id.split("").reduce((a, c) => a + c.charCodeAt(0), 0)) % colors.length;
+  return colors[idx];
+}
+
+// ── Format time (minutes) ─────────────────────────────────────────────────────
+function formatTime(mins) {
+  if (!mins) return "";
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+function render() {
+  if (activeTab === "week") renderWeek();
+  else renderFavorites();
+}
+
+function renderTabs() {
+  return `
+    <div class="tabs">
+      <button class="tab-btn${activeTab === "week" ? " active" : ""}" onclick="setTab('week')">Week</button>
+      <button class="tab-btn${activeTab === "favorites" ? " active" : ""}" onclick="setTab('favorites')">Favorites</button>
+    </div>`;
+}
+
+function renderWeek() {
+  const days = getWeekDays(weekOffset);
+  const isCurrentWeek = weekOffset === 0;
+
+  const grid = days.map(day => {
+    const key = dateKey(day);
+    const todayCls = isToday(day) ? " day-today" : "";
+    const slots = SLOTS.map(slot => {
+      const entry = mealPlan.find(m => m.plan_date === key && m.slot === slot.key);
+      const mealHtml = entry
+        ? `<span class="slot-meal">${esc(entry.meal_name)}</span>`
+        : `<span class="slot-empty">Add meal…</span>`;
+      const metaHtml = entry ? `
+        <div class="slot-meta">
+          ${entry.recipe_id ? `<span class="recipe-dot" title="Recipe linked"></span>` : ""}
+          ${entry.assigned_to ? `<div class="avatar" style="background:${memberColor(entry.assigned_to)}" title="${esc(members.find(m=>m.id===entry.assigned_to)?.name??"")}">
+            ${esc(memberInitials(entry.assigned_to))}
+          </div>` : ""}
+        </div>` : "";
+      return `
+        <div class="slot-row" onclick="openPlanModal('${esc(key)}','${slot.key}','${entry ? esc(entry.id) : ""}')">
+          <span class="slot-label">${slot.label}</span>
+          ${mealHtml}
+          ${metaHtml}
+        </div>`;
+    }).join("");
+
+    return `
+      <div class="day-row${todayCls}">
+        <div class="day-header">
+          <span class="day-name">${formatDay(day)}</span>
+          <span class="day-date">${formatDate(day)}</span>
+        </div>
+        ${slots}
+      </div>`;
+  }).join("");
+
+  document.getElementById("root").innerHTML = `
+    ${renderTabs()}
+    <div class="week-nav">
+      <button class="week-nav-btn" onclick="prevWeek()">← Prev</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <span class="week-label">${weekRangeLabel(days)}</span>
+        ${!isCurrentWeek ? `<button class="today-btn" onclick="goToday()">This week</button>` : ""}
+      </div>
+      <button class="week-nav-btn" onclick="nextWeek()">Next →</button>
+    </div>
+    <div class="week-grid">${grid}</div>`;
+}
+
+function renderFavorites() {
+  const favHtml = favorites.length ? favorites.map(f => {
+    const tags = JSON.parse(f.tags || "[]");
+    return `
+      <div class="fav-card">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <span class="fav-name">${esc(f.name)}</span>
+            ${f.use_count > 0 ? `<span class="fav-count">×${f.use_count}</span>` : ""}
+          </div>
+          ${tags.length ? `<div class="fav-tags" style="margin-top:4px">${tags.map(t => `<span class="fav-tag">${esc(t)}</span>`).join("")}</div>` : ""}
+        </div>
+        <div class="fav-actions">
+          <button class="icon-btn" onclick="editFav('${esc(f.id)}')" title="Edit">✏️</button>
+          <button class="icon-btn del" onclick="deleteFav('${esc(f.id)}')" title="Delete">✕</button>
+        </div>
+      </div>`;
+  }).join("") : `<div class="empty"><div class="empty-icon">⭐</div><p>No favorites yet — save meals you love for quick planning.</p></div>`;
+
+  const formHtml = showFavForm ? renderFavForm() : "";
+
+  document.getElementById("root").innerHTML = `
+    ${renderTabs()}
+    ${formHtml}
+    ${!showFavForm ? `<div class="section-header">
+      <span class="section-title">Saved Meals</span>
+      <button class="btn btn-primary" style="padding:6px 14px;font-size:0.82rem" onclick="openFavForm()">+ Add Favorite</button>
+    </div>` : ""}
+    <div class="fav-list">${favHtml}</div>`;
+}
+
+function renderFavForm() {
+  const editing = !!editingFavId;
+  const fav = editing ? favorites.find(f => f.id === editingFavId) : null;
+  const tags = fav ? JSON.parse(fav.tags || "[]").join(", ") : "";
+  return `
+    <div class="fav-form-card">
+      <div class="field">
+        <label>${editing ? "Edit Favorite" : "New Favorite"}</label>
+        <input id="fav-name" type="text" placeholder="Meal name" value="${esc(fav?.name ?? "")}" />
+      </div>
+      <div class="field">
+        <label>Tags <span style="font-weight:400;font-size:0.72rem">(comma-separated)</span></label>
+        <input id="fav-tags" type="text" placeholder="chicken, quick, weeknight" value="${esc(tags)}" />
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="cancelFavForm()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveFav()">Save</button>
+      </div>
+    </div>`;
+}
+
+// ── Tab navigation ─────────────────────────────────────────────────────────────
+window.setTab = function(tab) {
+  activeTab = tab;
+  showFavForm = false;
+  editingFavId = null;
+  render();
+};
+
+window.prevWeek = function() { weekOffset--; render(); };
+window.nextWeek = function() { weekOffset++; render(); };
+window.goToday  = function() { weekOffset = 0; render(); };
+
+// ── Plan meal modal ────────────────────────────────────────────────────────────
+window.openPlanModal = function(planDate, slot, existingId) {
+  const existing = existingId ? mealPlan.find(m => m.id === existingId) : null;
+  const slotLabel = SLOTS.find(s => s.key === slot)?.label ?? slot;
+  const dayDate = new Date(planDate + "T12:00:00");
+  const dateLabel = dayDate.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+
+  // Favorites sorted by use_count
+  const topFavs = [...favorites].sort((a, b) => b.use_count - a.use_count).slice(0, 8);
+
+  const favChips = topFavs.map(f =>
+    `<button class="pick-chip" onclick="pickFavorite(this,'${esc(f.name)}')">${esc(f.name)}</button>`
+  ).join("");
+
+  const memberOptions = `<option value="">Unassigned</option>` +
+    members.map(m => `<option value="${esc(m.id)}"${existing?.assigned_to === m.id ? " selected" : ""}>${esc(m.name)}</option>`).join("");
+
+  const hasRecipes = availableRecipes.length > 0;
+  const recipePickerHtml = hasRecipes ? `
+    <div class="modal-divider">Or pick from Recipes</div>
+    <div class="recipe-picker">
+      <input class="recipe-search" type="text" placeholder="Search recipes…" id="recipe-search-input"
+        oninput="filterRecipePicker(this.value)" autocomplete="off" />
+      <div class="recipe-pick-list" id="recipe-pick-list">
+        ${renderRecipePickList(availableRecipes, existing?.recipe_id ?? "")}
+      </div>
+    </div>` : "";
+
+  const groceryCheckHtml = `
+    <div class="grocery-check" id="grocery-check-row" style="${existing?.recipe_id ? "" : "display:none"}">
+      <input type="checkbox" id="add-to-grocery" />
+      <label class="grocery-check-label" for="add-to-grocery">🛒 Add ingredients to grocery list</label>
+    </div>`;
+
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.id = "plan-modal";
+  modal.innerHTML = `
+    <div class="modal">
+      <div class="modal-title">${esc(slotLabel)}</div>
+      <div class="modal-subtitle">${esc(dateLabel)}</div>
+
+      <div class="field">
+        <label>Meal name</label>
+        <input id="plan-meal-name" type="text" placeholder="What's for ${esc(slotLabel.toLowerCase())}?"
+          value="${esc(existing?.meal_name ?? "")}" autocomplete="off"
+          oninput="onMealNameInput(this.value)" />
+      </div>
+
+      ${topFavs.length ? `
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.75rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Quick picks</div>
+          <div class="quick-picks">${favChips}</div>
+        </div>` : ""}
+
+      ${recipePickerHtml}
+
+      ${groceryCheckHtml}
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+        <div class="field" style="margin:0">
+          <label>Who's cooking?</label>
+          <select id="plan-assigned">${memberOptions}</select>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Notes</label>
+          <input id="plan-notes" type="text" placeholder="Optional…" value="${esc(existing?.notes ?? "")}" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        ${existing ? `<button class="btn btn-danger" style="margin-right:auto" onclick="deleteMeal('${esc(existing.id)}')">Remove</button>` : ""}
+        <button class="btn btn-ghost" onclick="closePlanModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMeal('${esc(planDate)}','${slot}','${existingId}')">Save</button>
+      </div>
+    </div>`;
+
+  modal.addEventListener("click", e => { if (e.target === modal) closePlanModal(); });
+  document.body.appendChild(modal);
+
+  // Pre-select recipe if existing
+  if (existing?.recipe_id) {
+    setTimeout(() => {
+      document.getElementById(`rp-${existing.recipe_id}`)?.classList.add("selected");
+    }, 0);
+  }
+
+  document.getElementById("plan-meal-name")?.focus();
+};
+
+function renderRecipePickList(list, selectedId) {
+  if (!list.length) return `<p style="font-size:0.85rem;color:var(--muted);padding:6px 0">No recipes found</p>`;
+  return list.map(r => {
+    const diffCls = { easy: "diff-easy", medium: "diff-medium", hard: "diff-hard" }[r.difficulty] ?? "";
+    return `
+      <div class="recipe-pick-item${r.id === selectedId ? " selected" : ""}" id="rp-${esc(r.id)}"
+        onclick="selectRecipe('${esc(r.id)}')">
+        <div style="flex:1;min-width:0">
+          <div class="recipe-pick-name">${esc(r.title)}</div>
+          <div class="recipe-pick-meta">
+            ${r.difficulty ? `<span class="diff-badge ${diffCls}">${r.difficulty}</span> ` : ""}
+            ${r.total_time_mins ? `⏱ ${formatTime(r.total_time_mins)}` : ""}
+          </div>
+        </div>
+        ${r.id === selectedId ? `<span style="color:var(--green);font-size:1rem">✓</span>` : ""}
+      </div>`;
+  }).join("");
+}
+
+let selectedRecipeId = "";
+
+window.filterRecipePicker = function(q) {
+  const filtered = q
+    ? availableRecipes.filter(r => r.title.toLowerCase().includes(q.toLowerCase()))
+    : availableRecipes;
+  const el = document.getElementById("recipe-pick-list");
+  if (el) el.innerHTML = renderRecipePickList(filtered, selectedRecipeId);
+};
+
+window.selectRecipe = function(id) {
+  if (selectedRecipeId === id) {
+    // Deselect
+    selectedRecipeId = "";
+    document.getElementById(`rp-${id}`)?.classList.remove("selected");
+    document.getElementById("grocery-check-row").style.display = "none";
+    // Restore to meal name text if set
+  } else {
+    // Deselect previous
+    if (selectedRecipeId) {
+      document.getElementById(`rp-${selectedRecipeId}`)?.classList.remove("selected");
+    }
+    selectedRecipeId = id;
+    document.getElementById(`rp-${id}`)?.classList.add("selected");
+
+    // Fill in meal name with recipe title if empty
+    const nameEl = document.getElementById("plan-meal-name");
+    const recipe = availableRecipes.find(r => r.id === id);
+    if (recipe && nameEl && !nameEl.value.trim()) {
+      nameEl.value = recipe.title;
+    }
+
+    // Show grocery checkbox only if recipe has ingredients
+    const hasIngs = recipe?.ingredients?.length > 0;
+    const checkRow = document.getElementById("grocery-check-row");
+    if (checkRow) checkRow.style.display = hasIngs ? "" : "none";
+  }
+};
+
+window.pickFavorite = function(btn, name) {
+  // Fill meal name
+  const nameEl = document.getElementById("plan-meal-name");
+  if (nameEl) nameEl.value = name;
+  // Highlight chip
+  document.querySelectorAll(".pick-chip").forEach(c => c.classList.remove("selected"));
+  btn.classList.add("selected");
+  // Clear recipe selection
+  if (selectedRecipeId) {
+    document.getElementById(`rp-${selectedRecipeId}`)?.classList.remove("selected");
+    selectedRecipeId = "";
+    const checkRow = document.getElementById("grocery-check-row");
+    if (checkRow) checkRow.style.display = "none";
+  }
+};
+
+window.onMealNameInput = function(val) {
+  // Deselect pick chips if user is typing
+  if (val) document.querySelectorAll(".pick-chip").forEach(c => c.classList.remove("selected"));
+};
+
+window.closePlanModal = function() {
+  selectedRecipeId = "";
+  document.getElementById("plan-modal")?.remove();
+};
+
+window.saveMeal = async function(planDate, slot, existingId) {
+  const mealName = document.getElementById("plan-meal-name")?.value.trim();
+  if (!mealName) { document.getElementById("plan-meal-name")?.focus(); return; }
+
+  const assignedTo = document.getElementById("plan-assigned")?.value || null;
+  const notes      = document.getElementById("plan-notes")?.value.trim() ?? "";
+  const recipeId   = selectedRecipeId || null;
+  const addToGroceryChecked = document.getElementById("add-to-grocery")?.checked ?? false;
+
+  const saveBtn = document.querySelector("#plan-modal .btn-primary");
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Saving…"; }
+
+  try {
+    const now = new Date().toISOString();
+    if (existingId) {
+      await db(
+        `UPDATE meal_plan SET meal_name=?, recipe_id=?, assigned_to=?, notes=? WHERE id=?`,
+        [mealName, recipeId, assignedTo, notes, existingId]
+      );
+    } else {
+      await db(
+        `INSERT INTO meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [crypto.randomUUID(), planDate, slot, mealName, recipeId, assignedTo, notes, now]
+      );
+    }
+
+    // Add to grocery if recipe selected and checkbox checked
+    if (recipeId && addToGroceryChecked) {
+      const recipe = availableRecipes.find(r => r.id === recipeId);
+      if (recipe?.ingredients?.length) {
+        const ops = recipe.ingredients.map(ing => ({
+          op: "array_append", path: "items",
+          value: {
+            name: [ing.amount, ing.unit, ing.name].filter(Boolean).join(" ").trim(),
+            addedBy: recipe.title,
+          },
+        }));
+        try {
+          await crossWrite("grocery", "pending_items", ops);
+          showToast(`${recipe.ingredients.length} ingredient${recipe.ingredients.length !== 1 ? "s" : ""} added to grocery list`);
+        } catch {
+          showToast("Couldn't reach Grocery app", "error");
+        }
+      }
+    }
+
+    // Increment favorite use_count if meal name matches a favorite
+    const matchedFav = favorites.find(f => f.name.toLowerCase() === mealName.toLowerCase());
+    if (matchedFav) {
+      await db(`UPDATE favorites SET use_count = use_count + 1 WHERE id = ?`, [matchedFav.id]);
+    }
+
+    await loadAll();
+    closePlanModal();
+    render();
+  } catch {
+    showToast("Save failed — try again", "error");
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
+  }
+};
+
+window.deleteMeal = async function(id) {
+  if (!await hubConfirm({ message: "Remove this meal from the plan?", confirmLabel: "Remove", destructive: true })) return;
+  await db(`DELETE FROM meal_plan WHERE id = ?`, [id]);
+  await loadAll();
+  closePlanModal();
+  render();
+};
+
+// ── Favorites CRUD ─────────────────────────────────────────────────────────────
+window.openFavForm = function() {
+  showFavForm = true;
+  editingFavId = null;
+  render();
+  document.getElementById("fav-name")?.focus();
+};
+
+window.editFav = function(id) {
+  editingFavId = id;
+  showFavForm = true;
+  render();
+  document.getElementById("fav-name")?.focus();
+};
+
+window.cancelFavForm = function() {
+  showFavForm = false;
+  editingFavId = null;
+  render();
+};
+
+window.saveFav = async function() {
+  const name = document.getElementById("fav-name")?.value.trim();
+  if (!name) { document.getElementById("fav-name")?.focus(); return; }
+  const tagsRaw = document.getElementById("fav-tags")?.value ?? "";
+  const tags = JSON.stringify(tagsRaw.split(",").map(t => t.trim()).filter(Boolean));
+  const now = new Date().toISOString();
+
+  try {
+    if (editingFavId) {
+      await db(`UPDATE favorites SET name=?, tags=? WHERE id=?`, [name, tags, editingFavId]);
+    } else {
+      await db(
+        `INSERT INTO favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, 0, ?)`,
+        [crypto.randomUUID(), name, tags, now]
+      );
+    }
+    showFavForm = false;
+    editingFavId = null;
+    await loadAll();
+    render();
+  } catch {
+    showToast("Save failed — try again", "error");
+  }
+};
+
+window.deleteFav = async function(id) {
+  if (!await hubConfirm({ message: "Delete this favorite?", confirmLabel: "Delete", destructive: true })) return;
+  await db(`DELETE FROM favorites WHERE id = ?`, [id]);
+  await loadAll();
+  render();
+};
+
+init();
+</script>
+</body>
+</html>
