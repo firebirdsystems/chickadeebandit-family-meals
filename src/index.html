@@ -673,7 +673,7 @@ window.selectRecipe = function(id) {
     }
 
     // Show grocery checkbox only if recipe has ingredients
-    const hasIngs = recipe?.ingredients?.length > 0;
+    const hasIngs = !!(recipe?.ingredients_text?.trim());
     const checkRow = document.getElementById("grocery-check-row");
     if (checkRow) checkRow.style.display = hasIngs ? "" : "none";
   }
@@ -734,17 +734,15 @@ window.saveMeal = async function(planDate, slot, existingId) {
     // Add to grocery if recipe selected and checkbox checked
     if (recipeId && addToGroceryChecked) {
       const recipe = availableRecipes.find(r => r.id === recipeId);
-      if (recipe?.ingredients?.length) {
-        const ops = recipe.ingredients.map(ing => ({
+      const lines = recipe?.ingredients_text?.split("\n").map(l => l.trim()).filter(Boolean) ?? [];
+      if (lines.length) {
+        const ops = lines.map(line => ({
           op: "array_append", path: "items",
-          value: {
-            name: [ing.amount, ing.unit, ing.name].filter(Boolean).join(" ").trim(),
-            addedBy: recipe.title,
-          },
+          value: { name: line, addedBy: recipe.title },
         }));
         try {
           await crossWrite("grocery", "pending_items", ops);
-          showToast(`${recipe.ingredients.length} ingredient${recipe.ingredients.length !== 1 ? "s" : ""} added to grocery list`);
+          showToast(`${lines.length} ingredient${lines.length !== 1 ? "s" : ""} added to grocery list`);
         } catch {
           showToast("Couldn't reach Grocery app", "error");
         }
