@@ -6,7 +6,7 @@
   "entrypoint": "index.html",
   "runtime": "static",
   "storage": "db",
-  "category": "home",
+  "category": "family",
   "tags": ["meals", "food", "planning", "cooking"],
   "data_access": {
     "reads": ["family.members", "app.recipes.recipes"],
