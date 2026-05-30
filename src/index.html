@@ -366,10 +366,34 @@ const SLOTS = [
   { key: "dinner",    label: "Dinner"    },
 ];
 
+// ── Deep link ─────────────────────────────────────────────────────────────────
+function handleDeepLink() {
+  const mealId = new URLSearchParams(window.location.search).get("mealId");
+  if (!mealId) return;
+  const meal = mealPlan.find(m => m.id === mealId);
+  if (!meal) return;
+  const mealDate = new Date(meal.plan_date + "T12:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dayOfWeek = today.getDay();
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const thisMonday = new Date(today);
+  thisMonday.setDate(today.getDate() + diff);
+  const mealMonday = new Date(mealDate);
+  const md = mealDate.getDay();
+  const mdiff = md === 0 ? -6 : 1 - md;
+  mealMonday.setDate(mealDate.getDate() + mdiff);
+  weekOffset = Math.round((mealMonday - thisMonday) / (7 * 86400000));
+  activeTab = "week";
+  render();
+  openPlanModal(meal.plan_date, meal.slot, meal.id);
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   await Promise.all([loadContext(), loadAll()]);
   render();
+  handleDeepLink();
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
