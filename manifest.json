@@ -26,5 +26,10 @@
     "label": "Meals",
     "size": "small"
   },
-  "icon": "🍽️"
+  "icon": "🍽️",
+  "ai_access": {
+    "allowed": true,
+    "mode": "read",
+    "db_exports": ["upcoming_meals", "meal_favorites"]
+  }
 }
