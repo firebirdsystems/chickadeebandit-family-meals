@@ -738,11 +738,26 @@ window.saveMeal = async function(planDate, slot, existingId) {
   const recipeId   = selectedRecipeId || null;
   const addToGroceryChecked = document.getElementById("add-to-grocery")?.checked ?? false;
 
-  const saveBtn = document.querySelector("#plan-modal .btn-primary");
-  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Saving…"; }
+  const now = new Date().toISOString();
+  const newId = existingId ?? crypto.randomUUID();
 
+  // Optimistic update — apply to local state and close modal immediately
+  const optimisticEntry = { id: newId, plan_date: planDate, slot, meal_name: mealName,
+    recipe_id: recipeId, assigned_to: assignedTo, notes, created_at: now };
+  if (existingId) {
+    const idx = mealPlan.findIndex(m => m.id === existingId);
+    if (idx !== -1) mealPlan[idx] = { ...mealPlan[idx], ...optimisticEntry };
+  } else {
+    mealPlan.push(optimisticEntry);
+  }
+  const matchedFav = favorites.find(f => f.name.toLowerCase() === mealName.toLowerCase());
+  if (matchedFav) matchedFav.use_count = (matchedFav.use_count ?? 0) + 1;
+
+  closePlanModal();
+  render();
+
+  // Persist in the background
   try {
-    const now = new Date().toISOString();
     if (existingId) {
       await db(
         `UPDATE meal_plan SET meal_name=?, recipe_id=?, assigned_to=?, notes=? WHERE id=?`,
@@ -751,7 +766,7 @@ window.saveMeal = async function(planDate, slot, existingId) {
     } else {
       await db(
         `INSERT INTO meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [crypto.randomUUID(), planDate, slot, mealName, recipeId, assignedTo, notes, now]
+        [newId, planDate, slot, mealName, recipeId, assignedTo, notes, now]
       );
     }
 
@@ -773,18 +788,16 @@ window.saveMeal = async function(planDate, slot, existingId) {
       }
     }
 
-    // Increment favorite use_count if meal name matches a favorite
-    const matchedFav = favorites.find(f => f.name.toLowerCase() === mealName.toLowerCase());
     if (matchedFav) {
       await db(`UPDATE favorites SET use_count = use_count + 1 WHERE id = ?`, [matchedFav.id]);
     }
 
     await loadAll();
-    closePlanModal();
     render();
   } catch {
-    showToast("Save failed — try again", "error");
-    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
+    showToast("Save failed — changes may not have been saved", "error");
+    await loadAll();
+    render();
   }
 };
 
