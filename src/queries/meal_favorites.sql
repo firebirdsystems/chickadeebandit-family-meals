@@ -4,7 +4,6 @@ SELECT
   tags,
   use_count,
   created_at
-FROM favorites
-WHERE household_id = current_setting('app.household_id', true)::uuid
+FROM app_family_meals__favorites
 ORDER BY use_count DESC, name
 LIMIT 100

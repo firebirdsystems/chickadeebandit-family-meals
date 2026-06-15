@@ -311,8 +311,8 @@ async function loadContext() {
 // ── Data loading ──────────────────────────────────────────────────────────────
 async function loadAll() {
   const [mpRes, favRes] = await Promise.all([
-    db(`SELECT * FROM meal_plan ORDER BY plan_date, slot`),
-    db(`SELECT * FROM favorites ORDER BY use_count DESC, name`),
+    db(`SELECT * FROM app_family_meals__meal_plan ORDER BY plan_date, slot`),
+    db(`SELECT * FROM app_family_meals__favorites ORDER BY use_count DESC, name`),
   ]);
   mealPlan = mpRes.rows;
   favorites = favRes.rows;
@@ -760,12 +760,12 @@ window.saveMeal = async function(planDate, slot, existingId) {
   try {
     if (existingId) {
       await db(
-        `UPDATE meal_plan SET meal_name=?, recipe_id=?, assigned_to=?, notes=? WHERE id=?`,
+        `UPDATE app_family_meals__meal_plan SET meal_name=?, recipe_id=?, assigned_to=?, notes=? WHERE id=?`,
         [mealName, recipeId, assignedTo, notes, existingId]
       );
     } else {
       await db(
-        `INSERT INTO meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [newId, planDate, slot, mealName, recipeId, assignedTo, notes, now]
       );
     }
@@ -789,7 +789,7 @@ window.saveMeal = async function(planDate, slot, existingId) {
     }
 
     if (matchedFav) {
-      await db(`UPDATE favorites SET use_count = use_count + 1 WHERE id = ?`, [matchedFav.id]);
+      await db(`UPDATE app_family_meals__favorites SET use_count = use_count + 1 WHERE id = ?`, [matchedFav.id]);
     }
 
     await loadAll();
@@ -803,7 +803,7 @@ window.saveMeal = async function(planDate, slot, existingId) {
 
 window.deleteMeal = async function(id) {
   if (!await hubConfirm({ message: "Remove this meal from the plan?", confirmLabel: "Remove", destructive: true })) return;
-  await db(`DELETE FROM meal_plan WHERE id = ?`, [id]);
+  await db(`DELETE FROM app_family_meals__meal_plan WHERE id = ?`, [id]);
   await loadAll();
   closePlanModal();
   render();
@@ -839,10 +839,10 @@ window.saveFav = async function() {
 
   try {
     if (editingFavId) {
-      await db(`UPDATE favorites SET name=?, tags=? WHERE id=?`, [name, tags, editingFavId]);
+      await db(`UPDATE app_family_meals__favorites SET name=?, tags=? WHERE id=?`, [name, tags, editingFavId]);
     } else {
       await db(
-        `INSERT INTO favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, 0, ?)`,
+        `INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, 0, ?)`,
         [crypto.randomUUID(), name, tags, now]
       );
     }
@@ -857,7 +857,7 @@ window.saveFav = async function() {
 
 window.deleteFav = async function(id) {
   if (!await hubConfirm({ message: "Delete this favorite?", confirmLabel: "Delete", destructive: true })) return;
-  await db(`DELETE FROM favorites WHERE id = ?`, [id]);
+  await db(`DELETE FROM app_family_meals__favorites WHERE id = ?`, [id]);
   await loadAll();
   render();
 };
