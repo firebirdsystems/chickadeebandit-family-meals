@@ -27,6 +27,7 @@
     "size": "small"
   },
   "icon": "🍽️",
+  "db_plaintext_columns": ["slot", "plan_date"],
   "ai_access": {
     "allowed": true,
     "mode": "read",

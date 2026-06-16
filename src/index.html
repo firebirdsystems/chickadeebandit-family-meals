@@ -308,6 +308,14 @@ async function loadContext() {
   } catch { /* non-fatal */ }
 }
 
+// ── Pruning ───────────────────────────────────────────────────────────────────
+async function prunePastMeals() {
+  if (!DB) return;
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  await db(`DELETE FROM app_family_meals__meal_plan WHERE plan_date < ?`, [today]).catch(() => {});
+}
+
 // ── Data loading ──────────────────────────────────────────────────────────────
 async function loadAll() {
   const [mpRes, favRes] = await Promise.all([
@@ -391,7 +399,8 @@ function handleDeepLink() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
-  await Promise.all([loadContext(), loadAll()]);
+  await Promise.all([loadContext(), prunePastMeals()]);
+  await loadAll();
   render();
   handleDeepLink();
 }
