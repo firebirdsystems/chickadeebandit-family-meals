@@ -64,8 +64,7 @@
 
 <div class="content" id="content">
   <div class="empty">
-    <span class="icon">🍽️</span>
-    <p>No meals planned</p>
+    <p>Loading…</p>
   </div>
 </div>
 
@@ -102,14 +101,25 @@ async function init() {
   }
   const memberMap = new Map(members.map(m => [m.id, m]));
 
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+
   const { rows: meals } = await db(`
     SELECT id, plan_date, slot, meal_name, recipe_id, assigned_to, notes, created_at
     FROM app_family_meals__meal_plan
-    WHERE plan_date    >= CURRENT_DATE
-    ORDER BY plan_date, slot
+    WHERE plan_date >= ?
+    ORDER BY plan_date, CASE slot WHEN 'breakfast' THEN 1 WHEN 'lunch' THEN 2 WHEN 'dinner' THEN 3 ELSE 4 END
     LIMIT 100
-  `);
-  if (!meals.length) return;
+  `, [today]);
+  if (!meals.length) {
+    document.getElementById("content").innerHTML = `
+      <div class="empty">
+        <span class="icon">🍽️</span>
+        <p>No meals planned</p>
+      </div>
+    `;
+    return;
+  }
 
   const upcoming = meals.slice(0, 4);
 
