@@ -575,7 +575,7 @@ window.openPlanModal = function(planDate, slot, existingId) {
   const topFavs = [...favorites].sort((a, b) => b.use_count - a.use_count).slice(0, 8);
 
   const favChips = topFavs.map(f =>
-    `<button class="pick-chip" onclick="pickFavorite(this,'${esc(f.name)}')">${esc(f.name)}</button>`
+    `<button class="pick-chip" onclick="pickFavorite(this,'${esc(f.id)}')">${esc(f.name)}</button>`
   ).join("");
 
   const memberOptions = `<option value="">Unassigned</option>` +
@@ -712,10 +712,15 @@ window.selectRecipe = function(id) {
   }
 };
 
-window.pickFavorite = function(btn, name) {
+window.pickFavorite = function(btn, favId) {
+  // Look the name up by id rather than interpolating it into the inline handler —
+  // a favorite name is arbitrary member-supplied text and esc() does not escape the
+  // single quotes that delimit the JS string in onclick="pickFavorite(this,'…')".
+  const fav = favorites.find(f => f.id === favId);
+  if (!fav) return;
   // Fill meal name
   const nameEl = document.getElementById("plan-meal-name");
-  if (nameEl) nameEl.value = name;
+  if (nameEl) nameEl.value = fav.name;
   // Highlight chip
   document.querySelectorAll(".pick-chip").forEach(c => c.classList.remove("selected"));
   btn.classList.add("selected");
