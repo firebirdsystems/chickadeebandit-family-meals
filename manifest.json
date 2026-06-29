@@ -6,6 +6,7 @@
   "entrypoint": "index.html",
   "runtime": "static",
   "storage": "db",
+  "db_encryption": "off",
   "category": "family",
   "tags": ["meals", "food", "planning", "cooking"],
   "data_access": {
