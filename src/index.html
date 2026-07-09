@@ -269,6 +269,10 @@
 
 <script type="module">
 import { esc, hubConfirm, crossWrite } from "/hub-sdk.js";
+import {
+  SLOTS, getWeekDays, dateKey, formatDay, formatDate, isToday, weekRangeLabel,
+  weekOffsetForDate, memberInitials as memberInitialsOf, memberColor, formatTime,
+} from "./logic.js";
 
 const DB      = window.__DB_URL         ?? "";
 const CONTEXT = window.__CONTEXT_URL    ?? "";
@@ -327,71 +331,13 @@ async function loadAll() {
 }
 
 // ── Week helpers ──────────────────────────────────────────────────────────────
-function getWeekDays(offset) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  // Find Monday of current week
-  const dayOfWeek = today.getDay(); // 0=Sun
-  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + diff + offset * 7);
-
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return d;
-  });
-}
-
-function dateKey(d) {
-  return d.toISOString().slice(0, 10); // YYYY-MM-DD
-}
-
-function formatDay(d) {
-  return d.toLocaleDateString("en-US", { weekday: "short" });
-}
-
-function formatDate(d) {
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function isToday(d) {
-  const now = new Date();
-  return d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-}
-
-function weekRangeLabel(days) {
-  const s = days[0].toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  const e = days[6].toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  return `${s} – ${e}`;
-}
-
-const SLOTS = [
-  { key: "breakfast", label: "Breakfast" },
-  { key: "lunch",     label: "Lunch"     },
-  { key: "dinner",    label: "Dinner"    },
-];
-
 // ── Deep link ─────────────────────────────────────────────────────────────────
 function handleDeepLink() {
   const mealId = new URLSearchParams(window.location.search).get("mealId");
   if (!mealId) return;
   const meal = mealPlan.find(m => m.id === mealId);
   if (!meal) return;
-  const mealDate = new Date(meal.plan_date + "T12:00:00");
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dayOfWeek = today.getDay();
-  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const thisMonday = new Date(today);
-  thisMonday.setDate(today.getDate() + diff);
-  const mealMonday = new Date(mealDate);
-  const md = mealDate.getDay();
-  const mdiff = md === 0 ? -6 : 1 - md;
-  mealMonday.setDate(mealDate.getDate() + mdiff);
-  weekOffset = Math.round((mealMonday - thisMonday) / (7 * 86400000));
+  weekOffset = weekOffsetForDate(meal.plan_date);
   activeTab = "week";
   render();
   openPlanModal(meal.plan_date, meal.slot, meal.id);
@@ -416,25 +362,7 @@ function showToast(msg, type = "") {
 }
 
 // ── Member helpers ─────────────────────────────────────────────────────────────
-function memberInitials(id) {
-  const m = members.find(m => m.id === id);
-  if (!m) return "?";
-  return m.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-}
-
-function memberColor(id) {
-  const colors = ["#6366f1","#059669","#d97706","#dc2626","#2563eb","#7c3aed","#0891b2"];
-  const idx = Math.abs(id.split("").reduce((a, c) => a + c.charCodeAt(0), 0)) % colors.length;
-  return colors[idx];
-}
-
-// ── Format time (minutes) ─────────────────────────────────────────────────────
-function formatTime(mins) {
-  if (!mins) return "";
-  if (mins < 60) return `${mins}m`;
-  const h = Math.floor(mins / 60), m = mins % 60;
-  return m ? `${h}h ${m}m` : `${h}h`;
-}
+function memberInitials(id) { return memberInitialsOf(members, id); }
 
 // ── Rendering ─────────────────────────────────────────────────────────────────
 function render() {
