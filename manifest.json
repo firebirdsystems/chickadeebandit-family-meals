@@ -1,17 +1,27 @@
 {
   "id": "family-meals",
   "name": "Family Meals",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Plan the week's meals day by day. Pick from your recipe book, assign who's cooking, and add ingredients directly to your grocery list.",
   "entrypoint": "index.html",
   "runtime": "static",
   "storage": "db",
   "db_encryption": "off",
   "category": "family",
-  "tags": ["meals", "food", "planning", "cooking"],
+  "tags": [
+    "meals",
+    "food",
+    "planning",
+    "cooking"
+  ],
   "data_access": {
-    "reads": ["family.members", "app.recipes.recipes"],
-    "writes": ["app.grocery.pending_items"]
+    "reads": [
+      "family.members",
+      "app.recipes.recipes"
+    ],
+    "writes": [
+      "app.grocery.pending_items"
+    ]
   },
   "permissions": {
     "default_audience": "everyone",
@@ -27,11 +37,24 @@
     "label": "Meals",
     "size": "small"
   },
-  "icon": "🍽️",
-  "db_plaintext_columns": ["slot", "plan_date"],
+  "agenda": {
+    "kind": "meal",
+    "source": {
+      "kind": "sql",
+      "query": "SELECT id AS id, meal_name AS title, slot AS subtitle, plan_date AS when_at, assigned_to AS member_id FROM app_family_meals__meal_plan WHERE plan_date = :today ORDER BY CASE slot WHEN 'breakfast' THEN 0 WHEN 'lunch' THEN 1 WHEN 'dinner' THEN 2 ELSE 3 END LIMIT 10"
+    }
+  },
+  "icon": "\ud83c\udf7d\ufe0f",
+  "db_plaintext_columns": [
+    "slot",
+    "plan_date"
+  ],
   "ai_access": {
     "allowed": true,
     "mode": "read",
-    "db_exports": ["upcoming_meals", "meal_favorites"]
+    "db_exports": [
+      "upcoming_meals",
+      "meal_favorites"
+    ]
   }
 }
