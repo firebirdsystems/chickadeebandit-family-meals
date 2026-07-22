@@ -1,5 +1,6 @@
 {
   "id": "family-meals",
+  "contexts": ["household", "shared_space"],
   "name": "Family Meals",
   "version": "1.1.0",
   "description": "Plan the week's meals day by day. Pick from your recipe book, assign who's cooking, and add ingredients directly to your grocery list.",
