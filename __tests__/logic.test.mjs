@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   SLOTS, getWeekDays, dateKey, formatDay, formatDate, isToday, weekRangeLabel,
-  weekOffsetForDate, memberInitials, memberColor, formatTime,
+  weekOffsetForDate, memberInitials, memberColor, formatTime, searchableFields,
 } from "../src/logic.js";
 
 // A Wednesday, noon local time, to avoid TZ boundary flakiness.
@@ -81,5 +81,12 @@ describe("formatTime", () => {
 describe("SLOTS", () => {
   it("lists the three meal slots", () => {
     expect(SLOTS.map(s => s.key)).toEqual(["breakfast", "lunch", "dinner"]);
+  });
+});
+
+describe("searchableFields", () => {
+  it("matches a recipe on its description, not just its title", () => {
+    expect(searchableFields({ title: "Traybake", description: "chicken, quick weeknight" }))
+      .toContain("chicken, quick weeknight");
   });
 });

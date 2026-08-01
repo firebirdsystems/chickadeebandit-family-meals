@@ -268,10 +268,10 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { esc, hubConfirm, crossWrite } from "/hub-sdk.js";
+import { esc, hubConfirm, crossWrite, searchMatch } from "/hub-sdk.js";
 import {
   SLOTS, getWeekDays, dateKey, formatDay, formatDate, isToday, weekRangeLabel,
-  weekOffsetForDate, memberInitials as memberInitialsOf, memberColor, formatTime,
+  weekOffsetForDate, memberInitials as memberInitialsOf, memberColor, formatTime, searchableFields,
 } from "./logic.js";
 
 const DB      = window.__DB_URL         ?? "";
@@ -607,7 +607,7 @@ let selectedRecipeId = "";
 
 window.filterRecipePicker = function(q) {
   const filtered = q
-    ? availableRecipes.filter(r => r.title.toLowerCase().includes(q.toLowerCase()))
+    ? availableRecipes.filter(r => searchMatch(q, searchableFields(r)))
     : availableRecipes;
   const el = document.getElementById("recipe-pick-list");
   if (el) el.innerHTML = renderRecipePickList(filtered, selectedRecipeId);

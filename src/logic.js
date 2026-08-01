@@ -80,3 +80,12 @@ export function formatTime(mins) {
   const h = Math.floor(mins / 60), m = mins % 60;
   return m ? `${h}h ${m}m` : `${h}h`;
 }
+
+/**
+ * Fields the recipe picker's search matches against (see hub-sdk `searchMatch`).
+ * The cross-app recipe rows carry a description, so "chicken quick" narrows the
+ * picker instead of matching only what happens to be in the title.
+ */
+export function searchableFields(recipe) {
+  return [recipe.title, recipe.description];
+}
