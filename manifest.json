@@ -31,6 +31,19 @@
   "resource_limits": {
     "max_db_bytes": 104857600
   },
+  "member_references": {
+    "meal_plan": {
+      "column": "assigned_to",
+      "on_removed": "null"
+    }
+  },
+  "retention": {
+    "meal_plan": {
+      "default": 90,
+      "timestamp_column": "plan_date",
+      "override_key": "meal_history"
+    }
+  },
   "nav": {
     "label": "Meals"
   },
