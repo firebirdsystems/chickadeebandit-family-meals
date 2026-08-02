@@ -51,6 +51,57 @@
     "label": "Meals",
     "size": "small"
   },
+  "automation_actions": {
+    "plan_meal": {
+      "title": "Put a meal on the plan",
+      "description": "Fill a slot on the meal plan when another app's event fires - a recipe picked, a trip day, a night someone else is cooking. The date comes from the trigger payload.",
+      "params": {
+        "plan_date": { "type": "text", "label": "Date (YYYY-MM-DD)", "required": true },
+        "meal_name": { "type": "text", "label": "What's for that meal", "required": true },
+        "slot": {
+          "type": "text",
+          "label": "Slot",
+          "default": "dinner",
+          "options": ["breakfast", "lunch", "dinner", "snack"]
+        },
+        "notes": { "type": "text", "label": "Notes", "default": "" }
+      },
+      "dedupe": { "table": "meal_plan", "column": "source_event_id" },
+      "steps": [
+        {
+          "op": "insert",
+          "table": "meal_plan",
+          "values": {
+            "id": "$uuid",
+            "plan_date": ":plan_date",
+            "slot": ":slot",
+            "meal_name": ":meal_name",
+            "notes": ":notes",
+            "created_at": "$now",
+            "source_event_id": "$event_id"
+          }
+        }
+      ]
+    }
+  },
+  "glance": {
+    "source": {
+      "kind": "sql",
+      "query": "SELECT meal_name AS value FROM app_family_meals__meal_plan WHERE plan_date = :today AND slot = 'dinner' LIMIT 1"
+    },
+    "display": {
+      "template": "stat",
+      "value": "value",
+      "label": "tonight's dinner",
+      "empty_hides": true
+    }
+  },
+  "publishes": [
+    "meal.planned"
+  ],
+  "publish_acls": {
+    "meal.planned": { "require_role": "member" }
+  },
   "agenda": {
     "kind": "meal",
     "source": {

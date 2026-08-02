@@ -277,6 +277,21 @@ import {
 const DB      = window.__DB_URL         ?? "";
 const CONTEXT = window.__CONTEXT_URL    ?? "";
 const ME      = window.__CURRENT_MEMBER ?? null;
+const EVENTS  = window.__EVENTS_URL     ?? "";
+
+// Best-effort: the row is already written, so a failed publish is not fatal.
+async function publishEvent(type, subjectId, payload = {}) {
+  if (!EVENTS) return;
+  try {
+    await fetch(EVENTS, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, subject_id: subjectId, payload }),
+    });
+  } catch {
+    // ignored on purpose
+  }
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let activeTab = "week";    // "week" | "favorites"
@@ -712,6 +727,15 @@ window.saveMeal = async function(planDate, slot, existingId) {
         `INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [newId, planDate, slot, mealName, recipeId, assignedTo, notes, now]
       );
+      // Only a newly filled slot. Editing a slot already on the plan is not a
+      // new decision, and the planner writes one slot at a time, so this never
+      // bursts a week of events at once.
+      await publishEvent("meal.planned", newId, {
+        plan_date: planDate,
+        slot,
+        meal_name: mealName,
+        assigned_to: assignedTo || null,
+      });
     }
 
     // Add to grocery if recipe selected and checkbox checked
