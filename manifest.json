@@ -7,6 +7,10 @@
   "entrypoint": "index.html",
   "runtime": "static",
   "storage": "db",
+  "preload": {
+    "meal_plan": {"sql": "SELECT * FROM app_family_meals__meal_plan ORDER BY plan_date, slot"},
+    "favorites": {"sql": "SELECT * FROM app_family_meals__favorites ORDER BY use_count DESC, name"}
+  },
   "db_encryption": "off",
   "category": "family",
   "tags": [
