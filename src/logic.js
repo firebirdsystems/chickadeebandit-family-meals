@@ -29,7 +29,10 @@ export function getWeekDays(offset, now = new Date()) {
 }
 
 export function dateKey(d) {
-  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+  // LOCAL parts, not toISOString(): getWeekDays builds these Dates from local
+  // components (and formatDay/formatDate render them locally), so reading one
+  // back in UTC shifts the whole grid a day west of Greenwich.
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function formatDay(d) {
