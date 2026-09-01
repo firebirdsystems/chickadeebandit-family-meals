@@ -268,7 +268,18 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { esc, hubConfirm, crossWrite, searchMatch } from "/hub-sdk.js";
+import { esc, hubConfirm, crossWrite, searchMatch, hubToday } from "/hub-sdk.js";
+
+// The household's calendar day as a Date, for the pure helpers in logic.js.
+// Those helpers default their date parameter to `new Date()` — the VIEWER
+// DEVICE's calendar — but they compare it against dates STORED on the household
+// calendar, which is what every server-side surface (glance, kiosk, cron,
+// `:today` in declared SQL) reports. Near midnight, or for a member in another
+// timezone, the two name different days. logic.js stays pure and SDK-free, so
+// the household day is supplied here. Noon keeps a DST shift from tipping it
+// into an adjacent day.
+const hubDay = () => new Date(`${hubToday()}T12:00:00`);
+
 import {
   SLOTS, getWeekDays, dateKey, formatDay, formatDate, isToday, weekRangeLabel,
   weekOffsetForDate, memberInitials as memberInitialsOf, memberColor, formatTime, searchableFields,
@@ -355,7 +366,7 @@ function handleDeepLink() {
   if (!mealId) return;
   const meal = mealPlan.find(m => m.id === mealId);
   if (!meal) return;
-  weekOffset = weekOffsetForDate(meal.plan_date);
+  weekOffset = weekOffsetForDate(meal.plan_date, hubDay());
   activeTab = "week";
   render();
   openPlanModal(meal.plan_date, meal.slot, meal.id);
@@ -396,12 +407,12 @@ function renderTabs() {
 }
 
 function renderWeek() {
-  const days = getWeekDays(weekOffset);
+  const days = getWeekDays(weekOffset, hubDay());
   const isCurrentWeek = weekOffset === 0;
 
   const grid = days.map(day => {
     const key = dateKey(day);
-    const todayCls = isToday(day) ? " day-today" : "";
+    const todayCls = isToday(day, hubDay()) ? " day-today" : "";
     const slots = SLOTS.map(slot => {
       const entry = mealPlan.find(m => m.plan_date === key && m.slot === slot.key);
       const mealHtml = entry
