@@ -19,10 +19,10 @@
       --accent-fg:    var(--hub-primary-fg, #fff);
       --radius:       var(--hub-radius, 0.5rem);
       --shadow:       0 1px 3px rgba(0,0,0,.07);
-      --green:  #059669; --green-light: #d1fae5;
-      --amber:  #d97706; --amber-bg: #fffbeb; --amber-border: #fcd34d;
-      --red:    #dc2626; --red-light: #fee2e2; --red-bg: #fef2f2;
-      --blue:   #2563eb; --blue-light: #dbeafe;
+      --green:  #059669; --green-ink: var(--hub-tint-success-fg, #059669); --green-light: #d1fae5;
+      --amber:  #d97706; --amber-bg: var(--hub-tint-warning, #fffbeb); --amber-border: var(--hub-tint-warning-border, #fcd34d);
+      --red:    var(--hub-tint-danger-fg, #dc2626); --red-light: var(--hub-tint-danger, #fee2e2); --red-bg: var(--bg);
+      --blue:   var(--hub-tint-info-fg, #2563eb); --blue-light: var(--hub-tint-info, #dbeafe);
     }
 
     body {
@@ -72,7 +72,7 @@
       overflow: hidden; box-shadow: var(--shadow);
     }
     .day-header {
-      padding: 8px 12px; background: #f3f4f6; border-bottom: 1px solid var(--border);
+      padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--border);
       display: flex; align-items: center; gap: 8px;
     }
     .day-name { font-weight: 700; font-size: 0.9rem; }
@@ -85,7 +85,7 @@
       transition: background .1s; min-height: 42px;
     }
     .slot-row:last-child { border-bottom: none; }
-    .slot-row:hover { background: #fafafa; }
+    .slot-row:hover { background: var(--bg); }
     .slot-label {
       font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
       color: var(--muted); min-width: 64px; flex-shrink: 0;
@@ -624,7 +624,7 @@ function renderRecipePickList(list, selectedId) {
             ${r.total_time_mins ? `⏱ ${formatTime(r.total_time_mins)}` : ""}
           </div>
         </div>
-        ${r.id === selectedId ? `<span style="color:var(--green);font-size:1rem">✓</span>` : ""}
+        ${r.id === selectedId ? `<span style="color:var(--green-ink);font-size:1rem">✓</span>` : ""}
       </div>`;
   }).join("");
 }
