@@ -60,7 +60,7 @@
       "title": "Put a meal on the plan",
       "description": "Fill a slot on the meal plan when another app's event fires - a recipe picked, a trip day, a night someone else is cooking. The date comes from the trigger payload.",
       "params": {
-        "plan_date": { "type": "text", "label": "Date (YYYY-MM-DD)", "required": true },
+        "plan_date": { "type": "text", "format": "date", "label": "Date (YYYY-MM-DD)", "required": true },
         "meal_name": { "type": "text", "label": "What's for that meal", "required": true },
         "slot": {
           "type": "text",
