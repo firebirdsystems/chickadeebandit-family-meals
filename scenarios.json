@@ -1,0 +1,106 @@
+{
+  "scenarios": [
+    {
+      "name": "upcoming_meals returns planned meals from today on and drops past days",
+      "members": { "parent": "adult", "kid": "child" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, assigned_to, created_at) VALUES ('m-future', '2099-03-01', 'dinner', 'Tacos', ?, '2026-01-01T00:00:00Z'), ('m-future2', '2099-03-02', 'lunch', 'Soup', NULL, '2026-01-01T00:00:00Z'), ('m-past', '2020-03-01', 'dinner', 'Old stew', NULL, '2026-01-01T00:00:00Z')",
+          "params": ["{{kid}}"]
+        },
+        {
+          "action": "named",
+          "as": "parent",
+          "kind": "query",
+          "name": "upcoming_meals",
+          "expect": {
+            "status": 200,
+            "rowCount": 2,
+            "rowsContain": [
+              { "id": "m-future", "meal_name": "Tacos", "slot": "dinner" },
+              { "id": "m-future2", "meal_name": "Soup" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "the meal plan is household-shared: a meal one member plans is visible to and editable by another",
+      "members": { "parent": "adult", "kid": "child" },
+      "steps": [
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, assigned_to, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          "params": ["m1", "2026-03-01", "dinner", "Pasta", "{{kid}}", "", "2026-01-01T00:00:00Z"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "SELECT id, meal_name FROM app_family_meals__meal_plan",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "m1", "meal_name": "Pasta" }] }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "UPDATE app_family_meals__meal_plan SET notes = 'extra cheese' WHERE id = 'm1'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id, notes FROM app_family_meals__meal_plan WHERE id = 'm1'",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "m1", "notes": "extra cheese" }] }
+        }
+      ]
+    },
+    {
+      "name": "meal_favorites returns the household's saved favorites",
+      "members": { "parent": "adult" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES ('f1', 'Pizza night', '[]', 7, '2026-01-01T00:00:00Z'), ('f2', 'Stir fry', '[]', 2, '2026-01-01T00:00:00Z')"
+        },
+        {
+          "action": "named",
+          "as": "parent",
+          "kind": "query",
+          "name": "meal_favorites",
+          "expect": {
+            "status": 200,
+            "rowCount": 2,
+            "rowsContain": [
+              { "id": "f1", "name": "Pizza night", "use_count": 7 },
+              { "id": "f2", "name": "Stir fry", "use_count": 2 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "any signed-in member, child included, may announce a planned meal",
+      "members": { "parent": "adult", "kid": "child" },
+      "steps": [
+        {
+          "action": "publish",
+          "as": "kid",
+          "type": "meal.planned",
+          "subject_id": "m1",
+          "payload": { "plan_date": "2026-03-01", "slot": "dinner", "meal_name": "Pancakes", "assigned_to": null },
+          "expect": { "status": 201 }
+        },
+        {
+          "action": "publish",
+          "as": "parent",
+          "type": "meal.planned",
+          "subject_id": "m2",
+          "payload": { "plan_date": "2026-03-02", "slot": "lunch", "meal_name": "Soup", "assigned_to": null },
+          "expect": { "status": 201 }
+        }
+      ]
+    }
+  ]
+}
