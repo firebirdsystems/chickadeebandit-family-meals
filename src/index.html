@@ -761,8 +761,9 @@ window.saveMeal = async function(planDate, slot, existingId) {
         try {
           await crossWrite("grocery", "pending_items", ops);
           showToast(`${lines.length} ingredient${lines.length !== 1 ? "s" : ""} added to grocery list`);
-        } catch {
-          showToast("Couldn't reach Grocery app", "error");
+        } catch (e) {
+          // A shape refusal names the field; an availability problem does not.
+          showToast(e?.code === "EXPORT_SCHEMA_VIOLATION" ? e.message : "Couldn't reach Grocery app", "error");
         }
       }
     }
