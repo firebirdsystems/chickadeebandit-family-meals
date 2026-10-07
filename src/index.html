@@ -268,7 +268,7 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { esc, hubConfirm, crossWrite, searchMatch, hubToday } from "/hub-sdk.js";
+import { esc, hubConfirm, crossWrite, searchMatch, hubToday, glyph, chickadee } from "/hub-sdk.js";
 
 // The household's calendar day as a Date, for the pure helpers in logic.js.
 // Those helpers default their date parameter to `new Date()` — the VIEWER
@@ -469,11 +469,11 @@ function renderFavorites() {
           ${tags.length ? `<div class="fav-tags" style="margin-top:4px">${tags.map(t => `<span class="fav-tag">${esc(t)}</span>`).join("")}</div>` : ""}
         </div>
         <div class="fav-actions">
-          <button class="icon-btn" onclick="editFav('${esc(f.id)}')" title="Edit">✏️</button>
-          <button class="icon-btn del" onclick="deleteFav('${esc(f.id)}')" title="Delete">✕</button>
+          <button class="icon-btn" onclick="editFav('${esc(f.id)}')" title="Edit" aria-label="Edit">${glyph("pencil")}</button>
+          <button class="icon-btn del" onclick="deleteFav('${esc(f.id)}')" title="Delete" aria-label="Delete">${glyph("close")}</button>
         </div>
       </div>`;
-  }).join("") : `<div class="empty"><div class="empty-icon">⭐</div><p>No favorites yet — save meals you love for quick planning.</p></div>`;
+  }).join("") : `<div class="empty"><div class="empty-icon">${chickadee("nest", { size: 72 })}</div><p>No favorites yet — save meals you love for quick planning.</p></div>`;
 
   const formHtml = showFavForm ? renderFavForm() : "";
 
@@ -551,7 +551,7 @@ window.openPlanModal = function(planDate, slot, existingId) {
   const groceryCheckHtml = `
     <div class="grocery-check" id="grocery-check-row" style="${existing?.recipe_id ? "" : "display:none"}">
       <input type="checkbox" id="add-to-grocery" />
-      <label class="grocery-check-label" for="add-to-grocery">🛒 Add ingredients to grocery list</label>
+      <label class="grocery-check-label" for="add-to-grocery">${glyph("grocery")} Add ingredients to grocery list</label>
     </div>`;
 
   const modal = document.createElement("div");
@@ -621,10 +621,10 @@ function renderRecipePickList(list, selectedId) {
           <div class="recipe-pick-name">${esc(r.title)}</div>
           <div class="recipe-pick-meta">
             ${r.difficulty ? `<span class="diff-badge ${diffCls}">${r.difficulty}</span> ` : ""}
-            ${r.total_time_mins ? `⏱ ${formatTime(r.total_time_mins)}` : ""}
+            ${r.total_time_mins ? `${glyph("clock")} ${formatTime(r.total_time_mins)}` : ""}
           </div>
         </div>
-        ${r.id === selectedId ? `<span style="color:var(--green-ink);font-size:1rem">✓</span>` : ""}
+        ${r.id === selectedId ? `<span style="color:var(--green-ink);font-size:1rem">${glyph("tick")}</span>` : ""}
       </div>`;
   }).join("");
 }

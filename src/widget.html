@@ -57,7 +57,7 @@
 <body>
 
 <div class="header">
-  <span class="header-icon">🍽️</span>
+  <span class="header-icon" id="header-glyph"></span>
   <span class="header-title">Meals</span>
   <a class="header-link" href="/run/family-meals">Open</a>
 </div>
@@ -69,12 +69,15 @@
 </div>
 
 <script type="module">
-import { esc } from "/hub-sdk.js";
+import { esc, glyph, chickadee } from "/hub-sdk.js";
+
+// The header is static markup, so its glyph is filled in from script.
+document.getElementById("header-glyph").innerHTML = glyph("cloche");
 
 const DB      = window.__DB_URL      ?? "";
 const CONTEXT = window.__CONTEXT_URL ?? "";
 
-const SLOT_ICONS = { breakfast: "🥣", lunch: "🥪", dinner: "🍲", snack: "🍎" };
+const SLOT_GLYPHS = { breakfast: "bowl", lunch: "sandwich", dinner: "pot", snack: "apple" };
 
 async function db(sql, params = []) {
   if (!DB) return { rows: [] };
@@ -114,7 +117,7 @@ async function init() {
   if (!meals.length) {
     document.getElementById("content").innerHTML = `
       <div class="empty">
-        <span class="icon">🍽️</span>
+        <span class="icon">${chickadee("nest", { size: 56 })}</span>
         <p>No meals planned</p>
       </div>
     `;
@@ -129,7 +132,7 @@ async function init() {
     return `
       <div class="meal-row">
         <span class="meal-date">${esc(formatDate(m.plan_date))}</span>
-        <span class="meal-slot">${SLOT_ICONS[m.slot] || "🍽️"}</span>
+        <span class="meal-slot">${glyph(SLOT_GLYPHS[m.slot] || "meal")}</span>
         <span class="meal-name">${esc(m.meal_name)}</span>
         ${assignee ? `<span class="meal-assignee">${esc(assignee)}</span>` : ""}
       </div>
