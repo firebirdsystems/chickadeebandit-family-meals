@@ -1,0 +1,444 @@
+{
+  "seed": [
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-40 days'))",
+      "params": [
+        "pm-f0",
+        "Sheet pan chicken fajitas",
+        "[\"chicken\", \"quick\", \"weeknight\"]",
+        9
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-39 days'))",
+      "params": [
+        "pm-f1",
+        "Spaghetti and meatballs",
+        "[\"pasta\", \"kid favorite\"]",
+        8
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-38 days'))",
+      "params": [
+        "pm-f2",
+        "Slow cooker chili",
+        "[\"beef\", \"slow cooker\"]",
+        6
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-37 days'))",
+      "params": [
+        "pm-f3",
+        "Salmon with roasted broccoli",
+        "[\"fish\", \"healthy\"]",
+        5
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-36 days'))",
+      "params": [
+        "pm-f4",
+        "Homemade pizza night",
+        "[\"friday\", \"kid favorite\"]",
+        7
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-35 days'))",
+      "params": [
+        "pm-f5",
+        "Veggie stir fry with rice",
+        "[\"vegetarian\", \"quick\"]",
+        4
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-34 days'))",
+      "params": [
+        "pm-f6",
+        "Breakfast for dinner",
+        "[\"eggs\", \"quick\"]",
+        4
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days'))",
+      "params": [
+        "pm-f7",
+        "Turkey tacos",
+        "[\"weeknight\", \"kid favorite\"]",
+        6
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-32 days'))",
+      "params": [
+        "pm-f8",
+        "Chicken noodle soup",
+        "[\"soup\", \"comfort\"]",
+        3
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days'))",
+      "params": [
+        "pm-f9",
+        "Black bean quesadillas",
+        "[\"vegetarian\", \"quick\"]",
+        3
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-30 days'))",
+      "params": [
+        "pm-f10",
+        "Pot roast with carrots",
+        "[\"beef\", \"sunday\"]",
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__favorites (id, name, tags, use_count, created_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-29 days'))",
+      "params": [
+        "pm-f11",
+        "Overnight oats",
+        "[\"breakfast\", \"make ahead\"]",
+        5
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at, notes) VALUES (?, date('now','-10 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'), ?)",
+      "params": [
+        "pm-d0",
+        "dinner",
+        "Slow cooker chili",
+        "{{me}}",
+        "Start the slow cooker by 9am."
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-9 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d1",
+        "dinner",
+        "Turkey tacos",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-8 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d2",
+        "dinner",
+        "Salmon with roasted broccoli"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-7 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d3",
+        "dinner",
+        "Spaghetti and meatballs",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at, notes) VALUES (?, date('now','-6 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'), ?)",
+      "params": [
+        "pm-d4",
+        "dinner",
+        "Homemade pizza night",
+        "{{me}}",
+        "Dough is in the freezer."
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-5 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d5",
+        "dinner",
+        "Grilled burgers and corn"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-4 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d6",
+        "dinner",
+        "Pot roast with carrots",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at, notes) VALUES (?, date('now','-3 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'), ?)",
+      "params": [
+        "pm-d7",
+        "dinner",
+        "Sheet pan chicken fajitas",
+        "{{me}}",
+        "Double the peppers."
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-2 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d8",
+        "dinner",
+        "Veggie stir fry with rice"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-1 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d9",
+        "dinner",
+        "Chicken noodle soup",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+0 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d10",
+        "dinner",
+        "Breakfast for dinner",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+1 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d11",
+        "dinner",
+        "Homemade pizza night"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+2 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d12",
+        "dinner",
+        "Leftovers buffet",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at, notes) VALUES (?, date('now','+3 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'), ?)",
+      "params": [
+        "pm-d13",
+        "dinner",
+        "Roast chicken and potatoes",
+        "{{me}}",
+        "Grandma is joining us."
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+4 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d14",
+        "dinner",
+        "Black bean quesadillas"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+5 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d15",
+        "dinner",
+        "Turkey tacos",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+6 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d16",
+        "dinner",
+        "Baked ziti",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+7 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d17",
+        "dinner",
+        "Lemon herb salmon"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+8 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d18",
+        "dinner",
+        "Spaghetti and meatballs",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at, notes) VALUES (?, date('now','+9 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'), ?)",
+      "params": [
+        "pm-d19",
+        "dinner",
+        "Takeout night",
+        "{{me}}",
+        "Soccer runs late."
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+10 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days'))",
+      "params": [
+        "pm-d20",
+        "dinner",
+        "Beef stew"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-3 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o0",
+        "breakfast",
+        "Overnight oats",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-2 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o1",
+        "lunch",
+        "Turkey sandwiches"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-1 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o2",
+        "breakfast",
+        "Scrambled eggs and toast",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+0 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o3",
+        "breakfast",
+        "Overnight oats"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+0 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o4",
+        "lunch",
+        "Tomato soup and grilled cheese",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+1 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o5",
+        "breakfast",
+        "Yogurt and granola"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+1 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o6",
+        "lunch",
+        "Chicken salad wraps",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+2 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o7",
+        "breakfast",
+        "Pancakes"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+2 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o8",
+        "lunch",
+        "Leftover fajita bowls",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+3 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o9",
+        "breakfast",
+        "Smoothies and bagels"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+3 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o10",
+        "lunch",
+        "Pasta salad",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+4 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o11",
+        "breakfast",
+        "Overnight oats"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+5 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o12",
+        "breakfast",
+        "Waffles and fruit",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+5 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o13",
+        "lunch",
+        "Picnic at the park"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','+6 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o14",
+        "breakfast",
+        "Breakfast burritos",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-5 days'), ?, ?, NULL, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o15",
+        "lunch",
+        "Quesadillas"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_family_meals__meal_plan (id, plan_date, slot, meal_name, recipe_id, assigned_to, created_at) VALUES (?, date('now','-4 days'), ?, ?, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days'))",
+      "params": [
+        "pm-o16",
+        "breakfast",
+        "French toast",
+        "{{me}}"
+      ]
+    }
+  ]
+}
