@@ -258,6 +258,8 @@
       display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
     }
     .section-title { font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .load-error { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--hub-tint-danger, #fee2e2); color: var(--hub-tint-danger-fg, #b91c1c); font-size: 0.9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .load-error-retry { background: none; border: 1px solid currentColor; border-radius: 8px; padding: 5px 10px; font: inherit; font-weight: 600; color: inherit; cursor: pointer; flex-shrink: 0; }
   </style>
 <base href="/run/family-meals/">
 </head>
@@ -321,21 +323,23 @@ async function db(sql, params = []) {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sql, params }),
   });
-  const json = await res.json();
-  if (json.error) throw new Error(json.error);
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error(json?.error || "Couldn’t reach the hub. Try again.");
   return json;
 }
 
 // ── Context ───────────────────────────────────────────────────────────────────
 async function loadContext() {
   if (!CONTEXT) return;
-  try {
-    const res = await fetch(`${CONTEXT}?keys=family.members,app.recipes.recipes`);
-    if (!res.ok) return;
-    const data = await res.json();
-    members = data["family.members"] ?? [];
-    availableRecipes = data["app.recipes.recipes"] ?? [];
-  } catch { /* non-fatal */ }
+  // A roster that cannot be read is a failed load, not an empty household.
+  // A key the hub leaves out (Recipes not installed) is simply absent.
+  const res = await fetch(`${CONTEXT}?keys=family.members,app.recipes.recipes`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data || typeof data !== "object") throw new Error("Couldn’t reach the hub. Try again.");
+  // A 200 that names the roster in `$errors` is the hub failing to read it.
+  if (Array.isArray(data.$errors) && data.$errors.includes("family.members")) throw new Error("Couldn’t reach the hub. Try again.");
+  members = data["family.members"] ?? [];
+  availableRecipes = data["app.recipes.recipes"] ?? [];
 }
 
 // ── Pruning ───────────────────────────────────────────────────────────────────
@@ -374,10 +378,21 @@ function handleDeepLink() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
-  await Promise.all([loadContext(), loadAll()]);
+  try {
+    await Promise.all([loadContext(), loadAll()]);
+  } catch (e) {
+    // Nothing was read, so an empty week would be a false answer: say so instead.
+    document.getElementById("root").innerHTML =
+      `<div class="load-error" data-testid="load-error" role="alert"><span>Couldn’t load the meal plan.</span>
+        <button type="button" class="load-error-retry" data-testid="load-retry">Try again</button></div>`;
+    return;
+  }
   render();
   handleDeepLink();
 }
+document.addEventListener("click", e => {
+  if (e.target.closest('[data-testid="load-retry"]')) init();
+});
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 let toastTimer = null;
@@ -776,15 +791,20 @@ window.saveMeal = async function(planDate, slot, existingId) {
     render();
   } catch {
     showToast("Save failed — changes may not have been saved", "error");
-    await loadAll();
+    await loadAll().catch(() => {});
     render();
   }
 };
 
 window.deleteMeal = async function(id) {
   if (!await hubConfirm({ message: "Remove this meal from the plan?", confirmLabel: "Remove", destructive: true })) return;
-  await db(`DELETE FROM app_family_meals__meal_plan WHERE id = ?`, [id]);
-  await loadAll();
+  try {
+    await db(`DELETE FROM app_family_meals__meal_plan WHERE id = ?`, [id]);
+    await loadAll();
+  } catch (e) {
+    showToast(e.message || "Couldn’t reach the hub. Try again.", "error");
+    return;
+  }
   closePlanModal();
   render();
 };
@@ -837,8 +857,13 @@ window.saveFav = async function() {
 
 window.deleteFav = async function(id) {
   if (!await hubConfirm({ message: "Delete this favorite?", confirmLabel: "Delete", destructive: true })) return;
-  await db(`DELETE FROM app_family_meals__favorites WHERE id = ?`, [id]);
-  await loadAll();
+  try {
+    await db(`DELETE FROM app_family_meals__favorites WHERE id = ?`, [id]);
+    await loadAll();
+  } catch (e) {
+    showToast(e.message || "Couldn’t reach the hub. Try again.", "error");
+    return;
+  }
   render();
 };
 
