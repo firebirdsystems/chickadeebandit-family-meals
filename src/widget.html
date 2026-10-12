@@ -26,6 +26,7 @@
 
     .content { flex: 1; padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
 
+    .load-error { margin: 8px; padding: 8px 10px; border-radius: 10px; background: var(--hub-tint-danger, #fee2e2); color: var(--hub-tint-danger-fg, #b91c1c); font-size: 0.8rem; }
     .empty {
       flex: 1;
       display: flex;
@@ -99,10 +100,14 @@ function formatDate(dateStr) {
 async function init() {
   let members = [];
   if (CONTEXT) {
-    try {
-      const res = await fetch(`${CONTEXT}?keys=family.members`);
-      members = ((await res.json())["family.members"]) ?? [];
-    } catch {}
+    const res = await fetch(`${CONTEXT}?keys=family.members`);
+    const data = await res.json().catch(() => null);
+    // A member list the hub could not read (not OK, not JSON, or named in
+    // `$errors`) is a failed load. A key merely absent is "not permitted".
+    if (!res.ok || !data || typeof data !== "object" || (Array.isArray(data.$errors) && data.$errors.includes("family.members"))) {
+      throw new Error("Couldn’t load the member list.");
+    }
+    members = data["family.members"] ?? [];
   }
   const memberMap = new Map(members.map(m => [m.id, m]));
 
@@ -144,7 +149,7 @@ async function init() {
 
 // A failed read must not leave "Loading…" standing.
 init().catch(() => {
-  document.getElementById("content").innerHTML = `<div class="empty"><p>Couldn’t load. Try again.</p></div>`;
+  document.getElementById("content").innerHTML = `<div class="load-error" data-testid="load-error" role="alert">Couldn’t load the meal plan.</div>`;
 });
 </script>
 </body>

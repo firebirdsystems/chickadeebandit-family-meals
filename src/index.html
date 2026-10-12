@@ -802,7 +802,8 @@ window.deleteMeal = async function(id) {
     await db(`DELETE FROM app_family_meals__meal_plan WHERE id = ?`, [id]);
     await loadAll();
   } catch (e) {
-    showToast(e.message || "Couldn’t reach the hub. Try again.", "error");
+    console.error(e);
+    showToast("Couldn’t remove the meal — try again.", "error");
     return;
   }
   closePlanModal();
@@ -861,7 +862,8 @@ window.deleteFav = async function(id) {
     await db(`DELETE FROM app_family_meals__favorites WHERE id = ?`, [id]);
     await loadAll();
   } catch (e) {
-    showToast(e.message || "Couldn’t reach the hub. Try again.", "error");
+    console.error(e);
+    showToast("Couldn’t delete the favorite — try again.", "error");
     return;
   }
   render();
