@@ -32,9 +32,6 @@
     "default_audience": "everyone",
     "requires_approval": false
   },
-  "resource_limits": {
-    "max_db_bytes": 104857600
-  },
   "member_references": {
     "meal_plan": {
       "column": "assigned_to",
